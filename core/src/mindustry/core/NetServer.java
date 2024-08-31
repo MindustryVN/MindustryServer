@@ -215,10 +215,9 @@ public class NetServer implements ApplicationListener {
                         result.append("[]\n");
                     }
 
-                    // if(!extraMods.isEmpty()){
-                    // result.append("Unnecessary mods:[lightgray]\n").append(">
-                    // ").append(extraMods.toString("\n> "));
-                    // }
+                    if(!extraMods.isEmpty()){
+                    result.append("Unnecessary mods:[lightgray]\n").append(">").append(extraMods.toString("\n> "));
+                    }
                     con.kick(result.toString(), 0);
                     return;
                     }
