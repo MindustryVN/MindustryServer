@@ -1,59 +1,37 @@
-name: Tests
+name: Docker Build and Push
 
-on: [push, workflow_dispatch]
+# Controls when the action will run (here it runs on pushes to main or PR merges)
+on:
+  push:
+    branches:
+      - main
 
-permissions: {}
 jobs:
-  runPush:
-    permissions:
-      contents: write # for Update bundles
-
+  build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Trigger BE build
-      if: ${{ github.repository == 'Anuken/Mindustry' }}
-      run: |
-        git clone --depth=1 --branch=master https://github.com/Anuken/MindustryBuilds ../MindustryBuilds
-        cd ../MindustryBuilds
-        BNUM=$(($GITHUB_RUN_NUMBER + 20000))
-        git tag ${BNUM}
-        git config --global user.name "Github Actions"
-        git push https://Anuken:${{ secrets.API_TOKEN_GITHUB }}@github.com/Anuken/MindustryBuilds ${BNUM}
-    - name: Set up JDK 17
-      uses: actions/setup-java@v1
-      with:
-        java-version: 17
-    - name: Setup Gradle
-      uses: gradle/gradle-build-action@v2
-    - name: Update bundles
-      if: ${{ github.repository == 'Anuken/Mindustry' }}
-      run: |
-        ./gradlew updateBundles
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-        if [ -n "$(git status --porcelain)" ]; then
-          git add core/assets/bundles/*
-          git commit -m "Automatic bundle update"
-          git push
-        fi
-    - name: Update JITpack repo
-      if: ${{ github.repository == 'Anuken/Mindustry' }}
-      run: |
-        git config --global user.name "Github Actions"
-        git config --global user.email "cli@github.com"
-        cd ../
-        cp -r ./Mindustry ./MindustryJitpack
-        cd MindustryJitpack
-        git clone --depth 1 https://github.com/Anuken/MindustryJitpack.git
-        rm -rf .git
-        cp -r ./MindustryJitpack/.git ./.git
-        rm -rf MindustryJitpack
-        rm -rf .github
-        rm README.md
-        git add .
-        git commit --allow-empty -m "${GITHUB_SHA}"
-        git push https://Anuken:${{ secrets.API_TOKEN_GITHUB }}@github.com/Anuken/MindustryJitpack
-        cd ../Mindustry
-    - name: Run unit tests
-      run: ./gradlew clean cleanTest test --stacktrace
+      # Set up Docker Buildx (required for cross-platform builds)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Log in to DockerHub using secrets
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Build the Docker image
+      - name: Build and tag Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/mindustry-server:latest .
+
+      # Push the Docker image to DockerHub
+      - name: Push Docker image
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/mindustry-server:latest
