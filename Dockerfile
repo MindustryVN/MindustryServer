@@ -3,7 +3,8 @@ COPY --chown=gradle:gradle . /home/gradle/src
 
 WORKDIR /home/gradle/src
 
-RUN ./gradlew server:dist
+RUN chmod +x ./gradlew
+RUN ./gradlew server:dist --build-cache
 
 FROM eclipse-temurin:22-jre-alpine
 
