@@ -3,7 +3,7 @@ COPY --chown=gradle:gradle . /home/gradle/src
 
 WORKDIR /home/gradle/src
 
-RUN ./gradlew server:dist --no-daemon 
+RUN ./gradlew server:dist
 
 FROM eclipse-temurin:22-jre-alpine
 
