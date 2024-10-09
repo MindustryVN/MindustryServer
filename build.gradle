@@ -21,6 +21,11 @@ buildscript{
     }
 }
 
+plugins{
+    id "org.jetbrains.kotlin.jvm" version "1.6.0"
+    id "org.jetbrains.kotlin.kapt" version "1.6.0"
+}
+
 allprojects{
     apply plugin: 'maven-publish'
     
@@ -252,6 +257,15 @@ project(":desktop"){
 
 project(":core"){
     apply plugin: "java-library"
+    apply plugin: "kotlin"
+    apply plugin: "kotlin-kapt"
+
+    kapt{
+        javacOptions{
+            option("-source", "16")
+            option("-target", "1.8")
+        }
+    }
 
     compileJava.options.fork = true
 
@@ -322,6 +336,7 @@ project(":core"){
 
         annotationProcessor 'com.github.Anuken:jabel:0.9.0'
         compileOnly project(":annotations")
+        kapt project(":annotations")
     }
 
     afterEvaluate{
@@ -344,6 +359,13 @@ project(":core"){
             })
             destinationDir = new File(buildDir, 'javadoc')
         }
+    }
+
+    gradle.taskGraph.whenReady{
+        //these are completely unnecessary
+        tasks.kaptGenerateStubsKotlin.onlyIf{ false }
+        tasks.compileKotlin.onlyIf{ false }
+        tasks.inspectClassesForKotlinIC.onlyIf{ false }
     }
 
     //comp** classes are only used for code generation
