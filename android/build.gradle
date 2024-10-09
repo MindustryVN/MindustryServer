@@ -67,10 +67,6 @@ android{
         props.store(file('../core/assets/version.properties').newWriter(), null)
     }
 
-    compileOptions{
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
 
     flavorDimensions "google"
 

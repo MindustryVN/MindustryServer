@@ -194,8 +194,6 @@ allprojects{
     }
 
     tasks.withType(JavaCompile){
-        targetCompatibility = 8
-        sourceCompatibility = JavaVersion.VERSION_16
         options.encoding = "UTF-8"
         options.compilerArgs += ["-Xlint:deprecation"]
         dependsOn clearCache
@@ -215,8 +213,6 @@ allprojects{
 
 configure(project(":annotations")){
     tasks.withType(JavaCompile){
-        targetCompatibility = 8
-        sourceCompatibility = 8
         options.fork = true
     }
 }
