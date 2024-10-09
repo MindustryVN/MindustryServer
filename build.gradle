@@ -213,6 +213,8 @@ allprojects{
 
 configure(project(":annotations")){
     tasks.withType(JavaCompile){
+        targetCompatibility = 8
+        sourceCompatibility = 8
         options.fork = true
     }
 }
